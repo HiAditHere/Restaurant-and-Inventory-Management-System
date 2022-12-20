@@ -1,0 +1,59 @@
+use('DMAProject');
+
+
+db.Orders.aggregate([
+  
+  {$lookup:
+    {
+      from: "Consist_Of",
+      localField: "OrderID",
+      foreignField: "OrderID",
+      as: "Consists"
+    }
+  },
+
+  {
+    $unwind: "$Consists"
+  },
+
+  {$lookup:
+    {
+      from: "Dishes",
+      localField: "DishID",
+      foreignField: "DishID",
+      as: "Dish_Details"
+    }
+  },
+
+  {
+    $unwind: "$Dish_Details"
+  },
+
+  {
+  $addFields: {
+    month: {"$month": "$Month_And_Date"},
+    did: "$Consists.DishID"
+  }},
+
+  {
+  $match: {
+    month: {"$gte": 4, "$lt":8}
+  }},
+
+  {
+    $group: {
+      _id: "$did",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+
+  {
+    $sort:{
+      count: -1
+    }
+  }
+
+
+]).toArray()

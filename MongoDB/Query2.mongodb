@@ -1,0 +1,27 @@
+use('DMAProject');
+
+db.Orders.aggregate([
+
+    {
+      $addFields: {
+        month: {"$month":"$Month_And_Date"}
+      }
+    },
+
+    {
+      $group: {
+        _id: "$month",
+        no_of_orders: {
+          $sum: 1
+        }
+      }
+    },
+
+    {
+      $sort:{
+        no_of_orders: -1
+      }
+    }
+
+  ]
+)
